@@ -74,12 +74,18 @@ namespace BuildKit.Editor
 
             if (dragging)
             {
-                foreach (var cell in ComputeCells(startGround, endGround, out int steps))
-                    DrawGhost(cell, steps);
+                List<Vector3> cells = ComputeCells(startGround, endGround, out int steps);
+                bool feedback = cells.Count <= MaxFeedbackCells;
+                if (cells.Count > 0) DrawCursorContext(cells[cells.Count - 1], steps);
+                foreach (var cell in cells)
+                    DrawGhost(cell, steps, feedback);
+                DrawCount(cells.Count);
             }
             else
             {
-                DrawGhost(BuildKitSession.Snap(ground), BuildKitSession.RotationSteps);
+                Vector3 snapped = BuildKitSession.Snap(ground);
+                DrawCursorContext(snapped, BuildKitSession.RotationSteps);
+                DrawGhost(snapped, BuildKitSession.RotationSteps);
             }
         }
 
@@ -92,9 +98,22 @@ namespace BuildKit.Editor
             int group = Undo.GetCurrentGroup();
             Transform parent = BuildKitSession.GetOrCreateGroup("BuildKit Line");
             foreach (var cell in cells)
+            {
+                if (Blocked(cell, steps)) continue;
                 BuildKitSession.Place(cell, steps, parent);
+            }
             Undo.CollapseUndoOperations(group);
             Undo.SetCurrentGroupName("BuildKit Line");
+            SnapFeedback.Invalidate();
+        }
+
+        void DrawCount(int count)
+        {
+            Handles.BeginGUI();
+            GUILayout.BeginArea(new Rect(10, 76, 200, 24));
+            GUILayout.Label($"{count} modules", EditorStyles.helpBox);
+            GUILayout.EndArea();
+            Handles.EndGUI();
         }
 
         /// <summary>

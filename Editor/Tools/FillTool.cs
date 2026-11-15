@@ -74,15 +74,21 @@ namespace BuildKit.Editor
                     break;
             }
 
+            int steps = BuildKitSession.RotationSteps;
             if (dragging)
             {
                 List<Vector3> cells = ComputeCells(startGround, endGround);
+                bool feedback = cells.Count <= MaxFeedbackCells;
+                if (cells.Count > 0) DrawCursorContext(BuildKitSession.Snap(endGround, steps), steps);
                 foreach (var cell in cells)
-                    DrawGhost(cell, BuildKitSession.RotationSteps);
+                    DrawGhost(cell, steps, feedback);
+                DrawCount(cells.Count);
             }
             else
             {
-                DrawGhost(BuildKitSession.Snap(ground), BuildKitSession.RotationSteps);
+                Vector3 snapped = BuildKitSession.Snap(ground);
+                DrawCursorContext(snapped, steps);
+                DrawGhost(snapped, steps);
             }
         }
 
@@ -91,13 +97,27 @@ namespace BuildKit.Editor
             List<Vector3> cells = ComputeCells(startGround, endGround);
             if (cells.Count == 0) return;
 
+            int steps = BuildKitSession.RotationSteps;
             Undo.IncrementCurrentGroup();
             int group = Undo.GetCurrentGroup();
             Transform parent = BuildKitSession.GetOrCreateGroup("BuildKit Fill");
             foreach (var cell in cells)
-                BuildKitSession.Place(cell, BuildKitSession.RotationSteps, parent);
+            {
+                if (Blocked(cell, steps)) continue;
+                BuildKitSession.Place(cell, steps, parent);
+            }
             Undo.CollapseUndoOperations(group);
             Undo.SetCurrentGroupName("BuildKit Fill");
+            SnapFeedback.Invalidate();
+        }
+
+        void DrawCount(int count)
+        {
+            Handles.BeginGUI();
+            GUILayout.BeginArea(new Rect(10, 76, 200, 24));
+            GUILayout.Label(count == 0 ? "too many cells" : $"{count} modules", EditorStyles.helpBox);
+            GUILayout.EndArea();
+            Handles.EndGUI();
         }
 
         static List<Vector3> ComputeCells(Vector3 a, Vector3 b)

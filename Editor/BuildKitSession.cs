@@ -35,6 +35,9 @@ namespace BuildKit.Editor
         public static int RotationSteps;
         public static bool Mirror;
         public static bool AlignToLine = true;
+        public static bool ShowGrid = true;
+        public static bool ShowContacts = true;
+        public static bool AvoidOverlap = true;
         public static Transform Parent;
 
         public static Quaternion Rotation => RotationFor(RotationSteps);
@@ -127,6 +130,9 @@ namespace BuildKit.Editor
             EditorPrefs.SetFloat(PrefKey + "GridZ", CustomGrid.z);
             EditorPrefs.SetFloat(PrefKey + "GroundY", GroundY);
             EditorPrefs.SetBool(PrefKey + "AlignToLine", AlignToLine);
+            EditorPrefs.SetBool(PrefKey + "ShowGrid", ShowGrid);
+            EditorPrefs.SetBool(PrefKey + "ShowContacts", ShowContacts);
+            EditorPrefs.SetBool(PrefKey + "AvoidOverlap", AvoidOverlap);
             if (source != null && PrefabUtility.IsPartOfPrefabAsset(source))
                 EditorPrefs.SetString(PrefKey + "Source", AssetDatabase.GetAssetPath(source));
         }
@@ -140,6 +146,9 @@ namespace BuildKit.Editor
                 EditorPrefs.GetFloat(PrefKey + "GridZ", 1f));
             GroundY = EditorPrefs.GetFloat(PrefKey + "GroundY", 0f);
             AlignToLine = EditorPrefs.GetBool(PrefKey + "AlignToLine", true);
+            ShowGrid = EditorPrefs.GetBool(PrefKey + "ShowGrid", true);
+            ShowContacts = EditorPrefs.GetBool(PrefKey + "ShowContacts", true);
+            AvoidOverlap = EditorPrefs.GetBool(PrefKey + "AvoidOverlap", true);
             string path = EditorPrefs.GetString(PrefKey + "Source", "");
             if (source == null && !string.IsNullOrEmpty(path))
                 source = AssetDatabase.LoadAssetAtPath<GameObject>(path);

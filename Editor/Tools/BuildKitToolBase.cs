@@ -11,6 +11,12 @@ namespace BuildKit.Editor
     {
         static readonly Color GhostColor = new Color(0.2f, 0.9f, 1f, 1f);
         static readonly Color GhostFill = new Color(0.2f, 0.9f, 1f, 0.12f);
+        static readonly Color TouchColor = new Color(0.3f, 1f, 0.45f, 1f);
+        static readonly Color OverlapColor = new Color(1f, 0.3f, 0.3f, 1f);
+        static readonly Color OverlapFill = new Color(1f, 0.3f, 0.3f, 0.18f);
+
+        /// <summary>Feedback per cell gets expensive on big drags, so above this count only the outline is drawn.</summary>
+        protected const int MaxFeedbackCells = 96;
 
         protected bool HasSource => BuildKitSession.HasSource;
 
@@ -69,11 +75,22 @@ namespace BuildKit.Editor
             return false;
         }
 
-        protected void DrawGhost(Vector3 bottomCenter, int steps)
+        /// <summary>
+        /// Draws one ghost cell. With feedback on, shared faces with placed modules light up green
+        /// and the ghost turns red when it overlaps something.
+        /// </summary>
+        protected SnapFeedback.Result DrawGhost(Vector3 bottomCenter, int steps, bool withFeedback = true)
         {
             Vector3 size = BuildKitSession.RotatedSize(steps);
+            var result = new SnapFeedback.Result();
+            if (withFeedback && BuildKitSession.ShowContacts)
+                result = SnapFeedback.DrawContacts(bottomCenter, size);
+
+            Color line = result.overlaps ? OverlapColor : (result.touching > 0 ? TouchColor : GhostColor);
+            Color fill = result.overlaps ? OverlapFill : GhostFill;
+
             Vector3 center = bottomCenter + Vector3.up * (size.y * 0.5f);
-            Handles.color = GhostColor;
+            Handles.color = line;
             Handles.DrawWireCube(center, size);
 
             Vector3 half = new Vector3(size.x * 0.5f, 0f, size.z * 0.5f);
@@ -84,7 +101,22 @@ namespace BuildKit.Editor
                 bottomCenter + new Vector3(half.x, 0f, half.z),
                 bottomCenter + new Vector3(half.x, 0f, -half.z)
             };
-            Handles.DrawSolidRectangleWithOutline(verts, GhostFill, Color.clear);
+            Handles.DrawSolidRectangleWithOutline(verts, fill, Color.clear);
+            return result;
+        }
+
+        /// <summary>Grid overlay and level marker around the cursor cell. Draw this before the ghost.</summary>
+        protected void DrawCursorContext(Vector3 bottomCenter, int steps)
+        {
+            Vector3 cell = BuildKitSession.RotatedSize(steps);
+            if (BuildKitSession.ShowGrid) SnapFeedback.DrawGrid(bottomCenter, cell);
+            SnapFeedback.DrawLevelMarker(bottomCenter, cell, BuildKitSession.Level, BuildKitSession.GroundY);
+        }
+
+        /// <summary>True when placement should skip this cell because something already occupies it.</summary>
+        protected bool Blocked(Vector3 bottomCenter, int steps)
+        {
+            return BuildKitSession.AvoidOverlap && SnapFeedback.IsOccupied(bottomCenter, BuildKitSession.RotatedSize(steps));
         }
 
         protected void DrawStatus(string text)

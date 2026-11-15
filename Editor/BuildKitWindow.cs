@@ -102,6 +102,18 @@ namespace BuildKit.Editor
                 BuildKitSession.SavePrefs();
                 SceneView.RepaintAll();
             }
+
+            EditorGUILayout.Space(8);
+            EditorGUILayout.LabelField("Feedback", EditorStyles.boldLabel);
+            EditorGUI.BeginChangeCheck();
+            BuildKitSession.ShowGrid = EditorGUILayout.Toggle("Show grid around cursor", BuildKitSession.ShowGrid);
+            BuildKitSession.ShowContacts = EditorGUILayout.Toggle("Highlight touching faces", BuildKitSession.ShowContacts);
+            BuildKitSession.AvoidOverlap = EditorGUILayout.Toggle("Skip occupied cells", BuildKitSession.AvoidOverlap);
+            if (EditorGUI.EndChangeCheck())
+            {
+                BuildKitSession.SavePrefs();
+                SceneView.RepaintAll();
+            }
         }
 
         void DrawTools()

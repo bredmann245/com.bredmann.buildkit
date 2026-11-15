@@ -33,6 +33,7 @@ namespace BuildKit.Editor
 
             if (!TryGetGroundPoint(e.mousePosition, out Vector3 ground)) return;
             Vector3 snapped = BuildKitSession.Snap(ground);
+            DrawCursorContext(snapped, BuildKitSession.RotationSteps);
             DrawGhost(snapped, BuildKitSession.RotationSteps);
 
             switch (e.type)
@@ -74,7 +75,9 @@ namespace BuildKit.Editor
         void PlaceAt(Vector3 snapped)
         {
             lastPainted = snapped;
+            if (Blocked(snapped, BuildKitSession.RotationSteps)) return;
             BuildKitSession.Place(snapped, BuildKitSession.RotationSteps, paintGroup);
+            SnapFeedback.Invalidate();
         }
     }
 }

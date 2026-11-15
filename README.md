@@ -46,6 +46,18 @@ Or add it to `Packages/manifest.json`:
 | 1 to 9 | Switch to a variant from the window's variant list |
 | Esc | Return to the Move tool |
 
+## Scene feedback
+
+While a tool is active the scene view shows where you are:
+
+- **Green faces**: the ghost shares a face with a module already placed. This is the "it snapped" signal.
+- **Red ghost and red outline**: the ghost overlaps an existing module. With **Skip occupied cells** on, those cells are not placed.
+- **Grid overlay**: a faint grid around the cursor at the current level, with brighter lines on the world X and Z axes.
+- **Level marker**: on levels above or below zero, a dotted line drops to the ground so you can see the height. The label shows the cell coordinates, level and world Y.
+- **Module count**: Line and Fill show how many modules the drag will create.
+
+Each cue can be turned off under **Feedback** in the window.
+
 ## How snapping works
 
 The grid cell defaults to the analyzed size of the source module, so modules tile edge to edge from the world origin. Turn off **Use module size as grid** to type a custom cell size. Level height is the cell's Y size.
