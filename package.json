@@ -1,0 +1,23 @@
+{
+  "name": "com.bredmann.buildkit",
+  "version": "0.1.0",
+  "displayName": "BuildKit",
+  "description": "Turn any single mesh or prefab into a snap kit. Place, line, fill, stack and bake modules to build structures fast in the Unity editor.",
+  "unity": "2022.3",
+  "author": {
+    "name": "Brandon Redmann",
+    "url": "https://diffuselight.dev"
+  },
+  "keywords": [
+    "level design",
+    "modular",
+    "snapping",
+    "editor tool",
+    "buildings"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bredmann245/com.bredmann.buildkit.git"
+  }
+}
