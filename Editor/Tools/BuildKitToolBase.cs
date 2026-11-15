@@ -33,7 +33,35 @@ namespace BuildKit.Editor
             return false;
         }
 
-        /// <summary>Handles R, M, PageUp, PageDown, 1 to 9 and Esc. Returns true if the event was used.</summary>
+        /// <summary>
+        /// Works out where the ghost goes for the current cursor. In Auto or Face mode a placed module under
+        /// the cursor wins and the ghost sits flush against that face; otherwise the ground grid is used.
+        /// </summary>
+        protected bool TryResolveCursor(Event e, int steps, out Vector3 bottomCenter, out bool faceSnapped, out FaceSnap.Hit hit)
+        {
+            hit = default;
+            faceSnapped = false;
+            bottomCenter = default;
+
+            if (BuildKitSession.SnapMode != SnapMode.Grid)
+            {
+                Ray ray = HandleUtility.GUIPointToWorldRay(e.mousePosition);
+                if (FaceSnap.TryHit(ray, out hit))
+                {
+                    Vector3 size = BuildKitSession.RotatedSize(steps);
+                    bottomCenter = FaceSnap.Resolve(hit, size, e.shift, e.control);
+                    faceSnapped = true;
+                    return true;
+                }
+                if (BuildKitSession.SnapMode == SnapMode.Face) return false;
+            }
+
+            if (!TryGetGroundPoint(e.mousePosition, out Vector3 ground)) return false;
+            bottomCenter = BuildKitSession.Snap(ground, steps);
+            return true;
+        }
+
+        /// <summary>Handles R, M, G, PageUp, PageDown, 1 to 9 and Esc. Returns true if the event was used.</summary>
         protected bool HandleCommonKeys(Event e)
         {
             if (e.type != EventType.KeyDown) return false;
@@ -48,6 +76,10 @@ namespace BuildKit.Editor
                     BuildKitSession.Mirror = !BuildKitSession.Mirror;
                     e.Use();
                     SceneView.RepaintAll();
+                    return true;
+                case KeyCode.G:
+                    BuildKitSession.CycleSnapMode();
+                    e.Use();
                     return true;
                 case KeyCode.PageUp:
                     BuildKitSession.Level++;
@@ -123,7 +155,7 @@ namespace BuildKit.Editor
         {
             Handles.BeginGUI();
             var style = new GUIStyle(EditorStyles.helpBox) { fontSize = 11 };
-            GUILayout.BeginArea(new Rect(10, 10, 360, 60));
+            GUILayout.BeginArea(new Rect(10, 10, 420, 64));
             GUILayout.Label(text, style);
             GUILayout.EndArea();
             Handles.EndGUI();
@@ -132,9 +164,10 @@ namespace BuildKit.Editor
         protected string StatusLine(string toolName)
         {
             string src = BuildKitSession.Source != null ? BuildKitSession.Source.name : "(none)";
-            return $"BuildKit {toolName}  |  {src}  |  Level {BuildKitSession.Level}  |  Rot {BuildKitSession.RotationSteps * 90}  |  " +
-                   (BuildKitSession.Mirror ? "Mirrored\n" : "\n") +
-                   "R rotate, M mirror, PgUp/PgDn level, 1-9 variants, Esc exit";
+            return $"BuildKit {toolName}  |  {src}  |  Snap {BuildKitSession.SnapMode}  |  Level {BuildKitSession.Level}  |  Rot {BuildKitSession.RotationSteps * 90}" +
+                   (BuildKitSession.Mirror ? "  |  Mirrored\n" : "\n") +
+                   "R rotate, M mirror, G snap mode, PgUp/PgDn level, 1-9 variants, Esc exit\n" +
+                   "Face snap: Shift half step, Ctrl free slide";
         }
 
         protected void NoSourceGUI(string toolName)

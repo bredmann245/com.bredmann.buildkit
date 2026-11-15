@@ -50,6 +50,9 @@ namespace BuildKit.Editor
             }
         }
 
+        /// <summary>All BuildModules in open scenes, cached until the hierarchy changes.</summary>
+        public static BuildModule[] AllModules() => Modules;
+
         public static Bounds WorldBounds(BuildModule m)
         {
             Matrix4x4 mat = m.transform.localToWorldMatrix;

@@ -38,7 +38,14 @@ namespace BuildKit.Editor
         public static bool ShowGrid = true;
         public static bool ShowContacts = true;
         public static bool AvoidOverlap = true;
+        public static SnapMode SnapMode = SnapMode.Auto;
         public static Transform Parent;
+
+        public static void CycleSnapMode()
+        {
+            SnapMode = (SnapMode)(((int)SnapMode + 1) % 3);
+            SceneView.RepaintAll();
+        }
 
         public static Quaternion Rotation => RotationFor(RotationSteps);
         public static Quaternion RotationFor(int steps) => Quaternion.Euler(0f, ((steps % 4) + 4) % 4 * 90f, 0f);
@@ -133,6 +140,7 @@ namespace BuildKit.Editor
             EditorPrefs.SetBool(PrefKey + "ShowGrid", ShowGrid);
             EditorPrefs.SetBool(PrefKey + "ShowContacts", ShowContacts);
             EditorPrefs.SetBool(PrefKey + "AvoidOverlap", AvoidOverlap);
+            EditorPrefs.SetInt(PrefKey + "SnapMode", (int)SnapMode);
             if (source != null && PrefabUtility.IsPartOfPrefabAsset(source))
                 EditorPrefs.SetString(PrefKey + "Source", AssetDatabase.GetAssetPath(source));
         }
@@ -149,6 +157,7 @@ namespace BuildKit.Editor
             ShowGrid = EditorPrefs.GetBool(PrefKey + "ShowGrid", true);
             ShowContacts = EditorPrefs.GetBool(PrefKey + "ShowContacts", true);
             AvoidOverlap = EditorPrefs.GetBool(PrefKey + "AvoidOverlap", true);
+            SnapMode = (SnapMode)EditorPrefs.GetInt(PrefKey + "SnapMode", (int)SnapMode.Auto);
             string path = EditorPrefs.GetString(PrefKey + "Source", "");
             if (source == null && !string.IsNullOrEmpty(path))
                 source = AssetDatabase.LoadAssetAtPath<GameObject>(path);

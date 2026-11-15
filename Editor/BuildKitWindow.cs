@@ -87,6 +87,9 @@ namespace BuildKit.Editor
             EditorGUILayout.LabelField("Grid", EditorStyles.boldLabel);
 
             EditorGUI.BeginChangeCheck();
+            BuildKitSession.SnapMode = (SnapMode)EditorGUILayout.EnumPopup(
+                new GUIContent("Snap mode", "Grid: world grid only. Auto: face of the module under the cursor, else grid. Face: faces only. Key G cycles."),
+                BuildKitSession.SnapMode);
             BuildKitSession.UseModuleSizeAsGrid = EditorGUILayout.Toggle("Use module size as grid", BuildKitSession.UseModuleSizeAsGrid);
             using (new EditorGUI.DisabledScope(BuildKitSession.UseModuleSizeAsGrid))
                 BuildKitSession.CustomGrid = EditorGUILayout.Vector3Field("Cell size", BuildKitSession.CustomGrid);
@@ -127,7 +130,7 @@ namespace BuildKit.Editor
                 if (GUILayout.Button("Fill", GUILayout.Height(28))) ToolManager.SetActiveTool<FillTool>();
                 EditorGUILayout.EndHorizontal();
             }
-            EditorGUILayout.HelpBox("R rotate, M mirror, PgUp/PgDn level, 1-9 variants, Esc exit tool.", MessageType.None);
+            EditorGUILayout.HelpBox("R rotate, M mirror, G snap mode, PgUp/PgDn level, 1-9 variants, Esc exit tool.\nFace snap: point at a placed module. Shift half step, Ctrl free slide.", MessageType.None);
         }
 
         void DrawVariants()

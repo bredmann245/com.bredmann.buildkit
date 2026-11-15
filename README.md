@@ -60,7 +60,11 @@ Each cue can be turned off under **Feedback** in the window.
 
 ## How snapping works
 
-The grid cell defaults to the analyzed size of the source module, so modules tile edge to edge from the world origin. Turn off **Use module size as grid** to type a custom cell size. Level height is the cell's Y size.
+There are two ways a module finds its spot. Press **G** to cycle modes, or pick one in the window.
+
+**Face snap** (Auto and Face modes, Place tool). Point at any face of a placed module. The ghost sits flush against that face, and the face you are targeting shows an orange outline. Along the face the ghost steps by its own size, measured from the target's edge, so edges line up even when the two modules are different sizes. Hold **Shift** for half steps, **Ctrl** to slide freely. Side faces keep the floor aligned with the target. The top face stacks on it.
+
+**Grid snap** (Grid mode, or Auto with nothing under the cursor). The grid cell defaults to the analyzed size of the source module, so modules tile edge to edge from the world origin. Turn off **Use module size as grid** to type a custom cell size. Level height is the cell's Y size.
 
 Placement uses the bottom center of the module's bounds, so pivots do not need to be clean.
 

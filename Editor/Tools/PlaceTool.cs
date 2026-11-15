@@ -31,10 +31,16 @@ namespace BuildKit.Editor
 
             DrawStatus(StatusLine("Place"));
 
-            if (!TryGetGroundPoint(e.mousePosition, out Vector3 ground)) return;
-            Vector3 snapped = BuildKitSession.Snap(ground);
-            DrawCursorContext(snapped, BuildKitSession.RotationSteps);
-            DrawGhost(snapped, BuildKitSession.RotationSteps);
+            int steps = BuildKitSession.RotationSteps;
+            if (!TryResolveCursor(e, steps, out Vector3 snapped, out bool faceSnapped, out FaceSnap.Hit hit))
+            {
+                if (e.type == EventType.MouseMove) window.Repaint();
+                return;
+            }
+
+            if (faceSnapped) FaceSnap.DrawTarget(hit);
+            else DrawCursorContext(snapped, steps);
+            DrawGhost(snapped, steps);
 
             switch (e.type)
             {
